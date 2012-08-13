@@ -6,10 +6,10 @@
   my ($TSHARK) = "/usr/local/bin/tethereal -V -r ";
   my ($TSHARK_FILTER) = "rpc.msgtyp eq 0 or rpc.msgtyp eq 1  ";
 
-  my ($delphix_file) = $ARGV[0];
+  my ($server_file) = $ARGV[0];
   my ($client_file) = $ARGV[1];
 
-  my (%delphix_frames) = ();
+  my (%server_frames) = ();
   my (%client_frames) = ();
   my (%xids);
 
@@ -173,21 +173,21 @@ sub process_packets {
         # these didn't work as private
         # as they aren't used else where, using them as global
 	#my ($x) ;
-        #my ($delphix) ;
+        #my ($server) ;
         #my ($client) ;
         #my ($diff) ;
 
-	my ($delphix_latency) = 0;
+	my ($server_latency) = 0;
 	my ($client_latency) = 0;
 
         foreach $type ("READ","WRITE","NONE") {
   	   for $xid (keys %{$xids{$type}} ) {
-   		if (exists $packets{$delphix_file}{$type}{"$xid"} and
+   		if (exists $packets{$server_file}{$type}{"$xid"} and
    		    exists $packets{$client_file}{$type}{"$xid"} ) {
-			$delphix = $packets{$delphix_file}{$type}{"$xid"};
+			$server = $packets{$server_file}{$type}{"$xid"};
 			$client = $packets{$client_file}{$type}{"$xid"} ;
-			$diff = $client -  $delphix;
-                        foreach $x ( "delphix", "client","diff") {
+			$diff = $client -  $server;
+                        foreach $x ( "server", "client","diff") {
                            $ela=${$x}*1000*1000;
                            if ($ela > 0 ) { $bucket=int(log($ela)/log(2)+1); }
                            $event=$type . "-" . $x;
@@ -206,7 +206,7 @@ sub process_packets {
            if ( $match{$type} > 0  ) {
              printf("%s\n", $type);
              print_hist_head;
-             foreach $x ( "delphix", "client","diff") {
+             foreach $x ( "server", "client","diff") {
                 $event=$type . "-" . $x;
                 if ($hist_ct{$event} ) {
                       printf("%7s :%6.2f,%7d",$x,$hist_sm{$event}/$hist_ct{$event}/1000,$hist_ct{$event});
@@ -223,8 +223,8 @@ sub process_packets {
 		
 printf(" ==================== Individual HOST DATA ============\n");
 
-print "Parsing delphix trace: $delphix_file\n";
-parse_file($delphix_file, \%delphix_frames);
+print "Parsing server trace: $server_file\n";
+parse_file($server_file, \%server_frames);
 print "Parsing client trace: $client_file\n";
 parse_file($client_file, \%client_frames);
 printf(" \n");
