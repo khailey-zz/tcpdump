@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+# original code by Matt Amdur
+# modified by Kyle Hailey to seperate out reads and writes and compact histograms
+
  $DEBUG=0;
   if  ( 1 == $DEBUG ) { $debug=1; }
 
